@@ -27,6 +27,8 @@ class MultiTaskImageEncoder(pl.LightningModule):
         self.w_bbox = 1.0
         self.w_seg = 1.0
 
+        self.training_step_outputs = []
+
     def forward(self, x):
         return self.encoder(x)
 
@@ -67,9 +69,16 @@ class MultiTaskImageEncoder(pl.LightningModule):
             'train_loss/recon': loss_recon,
             'train_loss/bbox': loss_bbox,
             'train_loss/seg': loss_seg
-        }, prog_bar=True)
+        }, on_step=True, on_epoch=True, prog_bar=True, logger=True)
         
+        self.training_step_outputs.append(total_loss)
         return total_loss
+
+    def on_train_epoch_end(self):
+        # Log the average training loss at the end of the epoch
+        avg_loss = torch.stack(self.training_step_outputs).mean()
+        self.log('train_epoch_avg_loss', avg_loss, on_step=False, on_epoch=True, prog_bar=True)
+        self.training_step_outputs.clear()
 
     def validation_step(self, batch, batch_idx):
         if batch_idx == 0: # Only log images for the first batch
