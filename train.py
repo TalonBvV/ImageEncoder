@@ -44,7 +44,8 @@ def main():
     trainer = pl.Trainer(
         max_epochs=MAX_EPOCHS,
         logger=logger,
-        gpus=1 if torch.cuda.is_available() else 0
+        accelerator="auto",
+        devices="auto"
     )
 
     # --- Start Training ---
