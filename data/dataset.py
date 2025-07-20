@@ -24,7 +24,7 @@ class RandomInstanceDataset(Dataset):
 
         # Generate a random polygon segmentation mask
         mask_img = Image.new('L', (128, 128), 0)
-        draw = Image.Draw(mask_img)
+        draw = ImageDraw.Draw(mask_img)
         
         # 1. Randomly select number of points
         num_points = np.random.randint(4, 129)
