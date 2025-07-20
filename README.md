@@ -36,7 +36,7 @@ This project contains a high-performance, multi-task image encoder built with Py
 To install the package directly from a GitHub repository, use the following command:
 
 ```bash
-pip install git+https://github.com/your-username/image-encoder.git
+pip install git+https://github.com/TalonBvV/ImageEncoder.git
 ```
 
 ## Usage
