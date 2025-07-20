@@ -67,7 +67,7 @@ class MultiTaskImageEncoder(pl.LightningModule):
             'train_loss/recon': loss_recon,
             'train_loss/bbox': loss_bbox,
             'train_loss/seg': loss_seg
-        })
+        }, prog_bar=True)
         
         return total_loss
 
