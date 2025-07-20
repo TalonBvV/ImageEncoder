@@ -20,7 +20,7 @@ class RandomInstanceDataset(Dataset):
         # Generate random bounding box [x, y, w, h] normalized
         w, h = np.random.rand(2) * 0.5 + 0.2 # width/height between 20% and 70%
         x, y = np.random.rand(2) * (1 - np.array([w, h]))
-        bbox = torch.tensor([x, y, w, h])
+        bbox = torch.tensor([x, y, w, h], dtype=torch.float32)
 
         # Generate a random polygon segmentation mask
         mask_img = Image.new('L', (128, 128), 0)
