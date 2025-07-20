@@ -27,7 +27,11 @@ def main():
         dummy_img.save(os.path.join(IMAGE_DIR, 'dummy.png'))
         print(f"Created a dummy image at {os.path.join(IMAGE_DIR, 'dummy.png')}")
 
-    image_paths = [os.path.join(IMAGE_DIR, img_name) for img_name in os.listdir(IMAGE_DIR)]
+    image_paths = []
+    for root, _, files in os.walk(IMAGE_DIR):
+        for file in files:
+            if file.lower().endswith(('.png', '.jpg', '.jpeg')):
+                image_paths.append(os.path.join(root, file))
 
     transform = transforms.Compose([
         transforms.Resize((128, 128)),
