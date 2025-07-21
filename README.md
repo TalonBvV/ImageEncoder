@@ -4,7 +4,7 @@ This project contains a high-performance, multi-task image encoder built with Py
 
 ## Features
 
-- **High-Performance Backbone:** Uses a pretrained `EfficientNet-B0` for a strong balance of speed and accuracy.
+- **High-Performance Backbone:** Uses a pretrained `MobileVit-xs` for a strong balance of speed and accuracy.
 - **Multi-Task Learning:** The encoder is trained on three objectives simultaneously:
     1.  **Full Image Reconstruction:** Recreates the entire input image.
     2.  **Conditioned Bounding Box Reconstruction:** Reconstructs the image, guided by input bounding box coordinates.
