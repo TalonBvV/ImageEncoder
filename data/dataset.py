@@ -4,18 +4,18 @@ import numpy as np
 import torch
 
 class RandomInstanceDataset(Dataset):
-    def __init__(self, image_paths, transform=None):
-        self.image_paths = image_paths
+    def __init__(self, patch_paths, transform=None):
+        self.patch_paths = patch_paths
         self.transform = transform # To convert images to tensors, etc.
 
     def __len__(self):
-        return len(self.image_paths)
+        return len(self.patch_paths)
 
     def __getitem__(self, idx):
         # Load image
-        img = Image.open(self.image_paths[idx]).convert('RGB')
+        img = Image.open(self.patch_paths[idx]).convert('RGB')
         if self.transform:
-            img = self.transform(img) # Should resize to 128x128
+            img = self.transform(img)
 
         # Generate random bounding box [x, y, w, h] normalized
         w, h = np.random.rand(2) * 0.5 + 0.2 # width/height between 20% and 70%

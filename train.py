@@ -11,34 +11,33 @@ from lightning_module import MultiTaskImageEncoder
 def main():
     # --- Configuration ---
     IMAGE_DIR = "path/to/your/images" # IMPORTANT: User must change this path
+    PREPROCESSED_DIR = "preprocessed_data"
     BATCH_SIZE = 32
     NUM_WORKERS = 4
     MAX_EPOCHS = 100
     
-    # --- Data Preparation ---
-    # Check if the image directory exists
-    if not os.path.isdir(IMAGE_DIR) or not os.listdir(IMAGE_DIR):
-        print(f"Error: Image directory not found or empty: {IMAGE_DIR}")
-        print("Please create a directory of images and update the IMAGE_DIR variable in train.py")
-        # As a fallback, create a dummy image for demonstration
-        os.makedirs(IMAGE_DIR, exist_ok=True)
-        from PIL import Image
-        dummy_img = Image.new('RGB', (128, 128), color = 'red')
-        dummy_img.save(os.path.join(IMAGE_DIR, 'dummy.png'))
-        print(f"Created a dummy image at {os.path.join(IMAGE_DIR, 'dummy.png')}")
+    # --- Preprocessing ---
+    print("Starting preprocessing...")
+    os.system(f"python preprocess.py --image_dir {IMAGE_DIR} --preprocessed_dir {PREPROCESSED_DIR}")
+    print("Preprocessing finished.")
 
-    image_paths = []
-    for root, _, files in os.walk(IMAGE_DIR):
+    # --- Data Preparation ---
+    patch_paths = []
+    for root, _, files in os.walk(PREPROCESSED_DIR):
         for file in files:
             if file.lower().endswith(('.png', '.jpg', '.jpeg')):
-                image_paths.append(os.path.join(root, file))
+                patch_paths.append(os.path.join(root, file))
+
+    if not patch_paths:
+        print(f"Error: No preprocessed images found in {PREPROCESSED_DIR}")
+        print("Please ensure the preprocessing step ran correctly and generated patch images.")
+        return
 
     transform = transforms.Compose([
-        transforms.Resize((128, 128)),
         transforms.ToTensor(),
     ])
 
-    dataset = RandomInstanceDataset(image_paths=image_paths, transform=transform)
+    dataset = RandomInstanceDataset(patch_paths=patch_paths, transform=transform)
     train_loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS)
 
     # --- Model & Trainer ---
