@@ -4,10 +4,12 @@ from models.encoder import ImageEncoder
 from models.decoder import ImageDecoder
 import torch.nn.functional as F
 import torchvision
+import os
 
 class MultiTaskImageEncoder(pl.LightningModule):
     def __init__(self, learning_rate=1e-4):
         super().__init__()
+        os.makedirs("training_outputs", exist_ok=True)
         self.save_hyperparameters()
         self.encoder = ImageEncoder(latent_dim=384)
         
@@ -78,6 +80,11 @@ class MultiTaskImageEncoder(pl.LightningModule):
         # Log the average training loss at the end of the epoch
         avg_loss = torch.stack(self.training_step_outputs).mean()
         self.log('train_epoch_avg_loss', avg_loss, on_step=False, on_epoch=True, prog_bar=True)
+        
+        # Write to log file
+        with open("training_outputs/loss_log.txt", "a") as f:
+            f.write(f"Epoch {self.current_epoch}: {avg_loss.item()}\n")
+
         self.training_step_outputs.clear()
 
     def validation_step(self, batch, batch_idx):
@@ -87,15 +94,22 @@ class MultiTaskImageEncoder(pl.LightningModule):
             
             # Get reconstructions
             recon_full = self.decoder_recon(latent)
+            recon_bbox = self.decoder_bbox(latent, conditioning=bbox)
             
             seg_conditioning = self.seg_mask_downsampler(seg_mask).view(image.size(0), -1)
-            recon_seg_conditioned = self.decoder_seg(latent, conditioning=seg_conditioning)
+            recon_seg = self.decoder_seg(latent, conditioning=seg_conditioning)
             
             # Apply mask for visualization
-            masked_output = recon_seg_conditioned * seg_mask
+            masked_output = recon_seg * seg_mask
             
-            grid = torchvision.utils.make_grid([image[0], recon_full[0], masked_output[0]])
-            self.logger.experiment.add_image('val_samples', grid, self.current_epoch)
+            # We only save the first image in the batch
+            grid = torchvision.utils.make_grid([
+                image[0], 
+                recon_full[0], 
+                recon_bbox[0], 
+                masked_output[0]
+            ])
+            torchvision.utils.save_image(grid, "training_outputs/epoch_samples.png")
 
     def configure_optimizers(self):
         return torch.optim.AdamW(self.parameters(), lr=self.hparams.learning_rate)

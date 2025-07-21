@@ -7,7 +7,7 @@ class ImageEncoder(nn.Module):
         super().__init__()
         # Load a pretrained EfficientNet-B0
         self.base_model = timm.create_model(
-            'efficientnet_b0',
+            'mobilevit_xs',
             pretrained=True,
             num_classes=0  # Remove the final classification layer
         )
